@@ -8,7 +8,6 @@ A full-stack **Expense Management System** built with the **MERN stack (MongoDB,
 ![dashboard](./assets/dashboard.png)
 ![login](./assets/login.png)
 ![register](./assets/register.png)
-![form](./assets/addExpense.png)
 
 ---
 ## 🌟 Features
