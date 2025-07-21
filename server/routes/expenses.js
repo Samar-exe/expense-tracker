@@ -2,12 +2,12 @@ const express = require("express");
 const router = express.Router();
 const Expense = require("../models/Expense");
 const authMiddleware = require("../middleswares/authMiddleware");
+const mongoose = require("mongoose");
 
 // Add expense
 router.post("/", authMiddleware, async (req, res) => {
-  console.log("Decoded user from token:", req.user);
-  const { title, amount, date } = req.body;
-  console.log("got the body");
+  const { title, amount, date, category } = req.body;
+
   if (!title || !amount || !date) {
     return res.status(400).json({ message: "All fields are required" });
   }
@@ -17,9 +17,10 @@ router.post("/", authMiddleware, async (req, res) => {
       title,
       amount,
       date,
-      userId: req.user.userId, // Changed from req.user.id to req.user.userId
+      category: category || "Other",
+      userId: req.user.userId,
     });
-    console.log("new object is being created but failing to save");
+
     const savedExpense = await newExpense.save();
     res.status(201).json(savedExpense);
   } catch (err) {
@@ -39,6 +40,64 @@ router.get("/", authMiddleware, async (req, res) => {
   }
 });
 
+// Get expenses grouped by category
+router.get("/by-category", authMiddleware, async (req, res) => {
+  try {
+    const expenses = await Expense.aggregate([
+      { $match: { userId: new mongoose.Types.ObjectId(req.user.userId) } }, // Fixed here
+      {
+        $group: {
+          _id: "$category",
+          total: { $sum: "$amount" },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { total: -1 } },
+    ]);
+    res.json(expenses);
+  } catch (err) {
+    console.error("Error fetching expenses by category:", err);
+    res
+      .status(500)
+      .json({ message: "Server error while fetching category data" });
+  }
+});
+
+// Get monthly expenses breakdown
+router.get("/monthly", authMiddleware, async (req, res) => {
+  try {
+    const expenses = await Expense.aggregate([
+      { $match: { userId: new mongoose.Types.ObjectId(req.user.userId) } }, // Fixed here
+      {
+        $group: {
+          _id: {
+            year: { $year: "$date" },
+            month: { $month: "$date" },
+          },
+          total: { $sum: "$amount" },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { "_id.year": 1, "_id.month": 1 } },
+      {
+        $project: {
+          _id: 0,
+          year: "$_id.year",
+          month: "$_id.month",
+          total: 1,
+          count: 1,
+        },
+      },
+    ]);
+    res.json(expenses);
+  } catch (err) {
+    console.error("Error fetching monthly expenses:", err);
+    res
+      .status(500)
+      .json({ message: "Server error while fetching monthly data" });
+  }
+});
+
 // Delete expense
 router.delete("/:id", authMiddleware, async (req, res) => {
   try {
@@ -48,7 +107,6 @@ router.delete("/:id", authMiddleware, async (req, res) => {
       return res.status(404).json({ message: "Expense not found" });
     }
 
-    // Check if the expense belongs to the authenticated user
     if (expense.userId.toString() !== req.user.userId) {
       return res
         .status(403)

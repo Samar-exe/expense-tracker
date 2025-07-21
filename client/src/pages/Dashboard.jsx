@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ExpenseVisualization from '../components/ExpenseVisualization';
 import {
   Container,
   Typography,
@@ -142,6 +143,7 @@ const Dashboard = () => {
               />
             ))
           )}
+          {expenses.length > 0 && <ExpenseVisualization />}
         </CardContent>
       </Card>
     </Container>

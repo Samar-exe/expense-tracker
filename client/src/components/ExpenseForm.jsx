@@ -6,7 +6,8 @@ import {
   Alert,
   CircularProgress,
   Grid,
-  InputAdornment
+  InputAdornment,
+  MenuItem, Select, FormControl, InputLabel
 } from '@mui/material';
 import { expenseService } from '../services/api';
 
@@ -16,7 +17,7 @@ const ExpenseForm = ({ onAdd }) => {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
+  const [category, setCategory] = useState('Other');
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -43,7 +44,8 @@ const ExpenseForm = ({ onAdd }) => {
       const newExpense = await expenseService.addExpense({
         title: title.trim(),
         amount: Number(amount),
-        date
+        date,
+        category
       });
 
       onAdd(newExpense);
@@ -104,6 +106,24 @@ const ExpenseForm = ({ onAdd }) => {
         InputLabelProps={{ shrink: true }}
         required
       />
+
+      <Grid item xs={12} md={6}>
+        <FormControl fullWidth margin="normal">
+          <InputLabel>Category</InputLabel>
+          <Select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            label="Category"
+          >
+            <MenuItem value="Food">Food</MenuItem>
+            <MenuItem value="Transportation">Transportation</MenuItem>
+            <MenuItem value="Housing">Housing</MenuItem>
+            <MenuItem value="Entertainment">Entertainment</MenuItem>
+            <MenuItem value="Utilities">Utilities</MenuItem>
+            <MenuItem value="Other">Other</MenuItem>
+          </Select>
+        </FormControl>
+      </Grid>
 
       <Button
         type="submit"

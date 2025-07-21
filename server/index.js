@@ -11,6 +11,7 @@ mongoose
   })
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("MongoDB connection error:", err));
+// After mongoose.connect in index.js
 
 const app = express();
 app.use(cors());

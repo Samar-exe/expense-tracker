@@ -10,6 +10,11 @@ const expenseSchema = new mongoose.Schema(
     title: String,
     amount: Number,
     date: Date,
+    category: {
+      type: String,
+      enum: ['Food', 'Transportation', 'Housing', 'Entertainment', 'Utilities', 'Other'],
+      default: 'Other'
+    }
   },
   { timestamps: true },
 );
