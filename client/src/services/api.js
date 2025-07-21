@@ -51,26 +51,26 @@ export const authService = {
 // Expense Services
 export const expenseService = {
 	getExpensesByCategory: async () => {
-		const response = await api.get("/expenses/by-category");
+		const response = await api.get("/api/expenses/by-category");
 		return response.data;
 	},
 
 	getMonthlyExpenses: async () => {
-		const response = await api.get("/expenses/monthly");
+		const response = await api.get("/api/expenses/monthly");
 		return response.data;
 	},
 	getExpenses: async () => {
-		const response = await api.get("/expenses");
+		const response = await api.get("/api/expenses");
 		return response.data;
 	},
 
 	addExpense: async (expenseData) => {
-		const response = await api.post("/expenses", expenseData);
+		const response = await api.post("/api/expenses", expenseData);
 		return response.data;
 	},
 
 	deleteExpense: async (id) => {
-		const response = await api.delete(`/expenses/${id}`);
+		const response = await api.delete(`/api/expenses/${id}`);
 		return response.data;
 	},
 };
